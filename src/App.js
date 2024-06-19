@@ -1,23 +1,21 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from 'react';
+import Broadcaster from './components/Broadcaster';
+import Watcher from './components/Watcher';
 
 function App() {
+  const [isBroadcaster, setIsBroadcaster] = useState(false);
+  const [isWatcher, setIsWatcher] = useState(false);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      {!isBroadcaster && !isWatcher && (
+        <div>
+          <button onClick={() => setIsBroadcaster(true)}>Start Broadcasting</button>
+          <button onClick={() => setIsWatcher(true)}>Watch Broadcast</button>
+        </div>
+      )}
+      {isBroadcaster && <Broadcaster />}
+      {isWatcher && <Watcher />}
     </div>
   );
 }
