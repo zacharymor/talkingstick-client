@@ -18,8 +18,12 @@ const Watcher = () => {
         const socket = io.connect('http://localhost:3000');
         const video = document.querySelector("video");
         const enableAudioButton = document.querySelector("#enable-audio");
+        const voteButton = document.querySelector("#vote-button");
+        const rotateButton = document.querySelector("#rotate-button");
 
         enableAudioButton.addEventListener("click", enableAudio);
+        voteButton.addEventListener("click", sendVote);
+        rotateButton.addEventListener("click", rotate);
 
         socket.on("offer", (id, description) => {
             peerConnection = new RTCPeerConnection(config);
@@ -48,9 +52,16 @@ const Watcher = () => {
             socket.emit("watcher");
         });
 
+
+        socket.on("selected", () => {
+            console.log('selected brooooooo');
+        });
+
         socket.on("broadcaster", () => {
             socket.emit("watcher");
         });
+
+
 
         window.onunload = window.onbeforeunload = () => {
             socket.close();
@@ -61,12 +72,33 @@ const Watcher = () => {
             console.log("Enabling audio");
             video.muted = false;
         }
+
+        function sendVote() {
+            console.log("Sending vote");
+            socket.emit('vote');
+        }
+
+        function rotate() {
+            socket.emit('rotate');
+        }
+
+        // Cleanup the event listener on component unmount
+        return () => {
+            voteButton.removeEventListener("click", sendVote);
+            rotateButton.removeEventListener("click", rotate);
+            if (socket) {
+                socket.disconnect();
+            }
+        };
     }, []);
 
     return (
         <div>
             <video autoPlay playsInline muted></video>
             <button id="enable-audio">Enable Audio</button>
+            <button id="vote-button">Vote</button>
+            <button id="rotate-button">ROTATE</button>
+
         </div>
     );
 };

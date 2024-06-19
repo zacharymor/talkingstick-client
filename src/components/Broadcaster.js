@@ -117,6 +117,13 @@ const Broadcaster = () => {
         function handleError(error) {
             console.error("Error: ", error);
         }
+
+        return () => {
+            if (socket) {
+                socket.disconnect();
+            }
+        };
+
     }, []);
 
     return (
@@ -128,6 +135,7 @@ const Broadcaster = () => {
             <div>
                 <label htmlFor="videoSource">Video source: </label><select id="videoSource"></select>
             </div>
+
         </div>
     );
 };
