@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import io from 'socket.io-client';
 
-const Broadcaster = () => {
+const Broadcaster = ({setIsWatcher, setIsBroadcaster}) => {
     useEffect(() => {
         const peerConnections = {};
         const config = {
@@ -14,7 +14,31 @@ const Broadcaster = () => {
                 // }
             ]
         };
+        const disconnect = () => {
+            console.log("Disconnecting...");
 
+            // Stop all media tracks
+            if (window.stream) {
+                window.stream.getTracks().forEach(track => {
+                    track.stop();
+                });
+            }
+
+            // Close all peer connections
+            Object.values(peerConnections).forEach(peerConnection => {
+                peerConnection.close();
+            });
+
+            // Notify server to update status
+            socket.emit("disconnectPeer", socket.id);
+
+            // Close the socket connection
+            socket.close();
+
+            // Update state to switch to watcher
+            setIsWatcher(true);
+            setIsBroadcaster(false);
+        };
         const socket = io.connect('http://localhost:3000');
 
         socket.on("answer", (id, description) => {
@@ -46,9 +70,15 @@ const Broadcaster = () => {
         });
 
         socket.on("disconnectPeer", id => {
-            peerConnections[id].close();
-            delete peerConnections[id];
+            if (peerConnections.length > 0) {
+                peerConnections[id].close();
+                delete peerConnections[id];
+            }
         });
+
+        socket.on("broadcaster", () => {
+            disconnect();
+;        });
 
         window.onunload = window.onbeforeunload = () => {
             socket.close();

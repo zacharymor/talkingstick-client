@@ -15,8 +15,8 @@ function App() {
           <button onClick={() => setIsWatcher(true)}>Watch Broadcast</button>
         </div>
       )}
-      {isBroadcaster && <Broadcaster />}
-      {isWatcher && <Watcher />}
+      {isBroadcaster && <Broadcaster setIsBroadcaster={setIsBroadcaster} setIsWatcher={setIsWatcher}/>}
+      {isWatcher && <Watcher setIsBroadcaster={setIsBroadcaster} setIsWatcher={setIsWatcher}/>}
     </div>
   );
 }

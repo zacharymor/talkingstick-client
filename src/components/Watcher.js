@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import io from 'socket.io-client';
 
-const Watcher = () => {
+const Watcher = ({setIsBroadcaster, setIsWatcher}) => {
     const [selectedy, setSelectedy] = useState(false);
 
     useEffect(() => {
@@ -115,7 +115,8 @@ const Watcher = () => {
             <button id="rotate-button">ROTATE</button>
             <button id="pass-button" disabled={(!selectedy)}>PASS</button>
             <button id="take-button" disabled={(!selectedy)}>TAKE</button>
-            
+            <button id="switch-button" onClick={() => {setIsBroadcaster(true) || setIsWatcher(false)}}>SWITCH</button>
+
         </div>
     );
 };
