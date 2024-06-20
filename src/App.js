@@ -8,6 +8,7 @@ function App() {
 
   return (
     <div className="App">
+      {"" + isBroadcaster}
       {!isBroadcaster && !isWatcher && (
         <div>
           <button onClick={() => setIsBroadcaster(true)}>Start Broadcasting</button>
