@@ -1,9 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import io from 'socket.io-client';
 
 const Watcher = () => {
-    const [selectedy, setSelectedy] = useState(false);
-
     useEffect(() => {
         let peerConnection;
         const config = {
@@ -22,14 +20,10 @@ const Watcher = () => {
         const enableAudioButton = document.querySelector("#enable-audio");
         const voteButton = document.querySelector("#vote-button");
         const rotateButton = document.querySelector("#rotate-button");
-        const passButton = document.querySelector("#pass-button");
-        const takeButton = document.querySelector("#take-button");
 
         enableAudioButton.addEventListener("click", enableAudio);
         voteButton.addEventListener("click", sendVote);
         rotateButton.addEventListener("click", rotate);
-        passButton.addEventListener("click", pass);
-        takeButton.addEventListener("click", take);
 
         socket.on("offer", (id, description) => {
             peerConnection = new RTCPeerConnection(config);
@@ -61,7 +55,6 @@ const Watcher = () => {
 
         socket.on("selected", () => {
             console.log('selected brooooooo');
-            setSelectedy(true);
         });
 
         socket.on("broadcaster", () => {
@@ -88,15 +81,7 @@ const Watcher = () => {
         function rotate() {
             socket.emit('rotate');
         }
-        function pass() {
-            setSelectedy(false);
-            socket.emit('rotate');
-        }
 
-        function take() {
-            setSelectedy(false);
-            socket.emit('selected');
-        }
         // Cleanup the event listener on component unmount
         return () => {
             voteButton.removeEventListener("click", sendVote);
@@ -111,11 +96,9 @@ const Watcher = () => {
         <div>
             <video autoPlay playsInline muted></video>
             <button id="enable-audio">Enable Audio</button>
-            <button id="vote-button">VOTE</button>
+            <button id="vote-button">Vote</button>
             <button id="rotate-button">ROTATE</button>
-            <button id="pass-button" disabled={(!selectedy)}>PASS</button>
-            <button id="take-button" disabled={(!selectedy)}>TAKE</button>
-            
+
         </div>
     );
 };
