@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import io from 'socket.io-client';
 
-const Watcher = ({setIsBroadcaster, setIsWatcher}) => {
+const Watcher0 = ({setIsBroadcaster, setIsWatcher}) => {
     const [selectedy, setSelectedy] = useState(false);
 
     useEffect(() => {
@@ -122,4 +122,4 @@ const Watcher = ({setIsBroadcaster, setIsWatcher}) => {
     );
 };
 
-export default Watcher;
+export default Watcher0;

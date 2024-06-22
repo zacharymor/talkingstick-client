@@ -1,31 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import io from 'socket.io-client';
 
-const Watcher = ({setIsBroadcaster, setIsWatcher}) => {
+const Controller = ({video}) => {
     const [selectedy, setSelectedy] = useState(false);
-
     useEffect(() => {
+        const socket = io.connect('http://localhost:3000');
+
         let peerConnection;
         const config = {
             iceServers: [
                 { "urls": "stun:stun.l.google.com:19302" },
-                // {
-                //   "urls": "turn:TURN_IP?transport=tcp",
-                //   "username": "TURN_USERNAME",
-                //   "credential": "TURN_CREDENTIALS"
-                // }
             ]
         };
 
-        const socket = io.connect('http://localhost:3000');
-        const video = document.querySelector("video");
-        const enableAudioButton = document.querySelector("#enable-audio");
         const voteButton = document.querySelector("#vote-button");
         const rotateButton = document.querySelector("#rotate-button");
         const passButton = document.querySelector("#pass-button");
         const takeButton = document.querySelector("#take-button");
 
-        enableAudioButton.addEventListener("click", enableAudio);
         voteButton.addEventListener("click", sendVote);
         rotateButton.addEventListener("click", rotate);
         passButton.addEventListener("click", pass);
@@ -58,28 +50,19 @@ const Watcher = ({setIsBroadcaster, setIsWatcher}) => {
             socket.emit("watcher");
         });
 
-
         socket.on("selected", () => {
             console.log('selected brooooooo');
             setSelectedy(true);
         });
 
         socket.on("broadcaster", () => {
-            setSelectedy(false);
             socket.emit("watcher");
         });
-
-
 
         window.onunload = window.onbeforeunload = () => {
             socket.close();
             peerConnection.close();
         };
-
-        function enableAudio() {
-            console.log("Enabling audio");
-            video.muted = false;
-        }
 
         function sendVote() {
             console.log("Sending vote");
@@ -89,15 +72,10 @@ const Watcher = ({setIsBroadcaster, setIsWatcher}) => {
         function rotate() {
             socket.emit('rotate');
         }
-        function pass() {
-            setSelectedy(false);
-            socket.emit('rotate');
-        }
 
-        function take() {
-            setSelectedy(false);
-            socket.emit('selected');
-        }
+
+
+
         // Cleanup the event listener on component unmount
         return () => {
             voteButton.removeEventListener("click", sendVote);
@@ -110,16 +88,13 @@ const Watcher = ({setIsBroadcaster, setIsWatcher}) => {
 
     return (
         <div>
-            <video autoPlay playsInline muted></video>
-            <button id="enable-audio">Enable Audio</button>
             <button id="vote-button">VOTE</button>
             <button id="rotate-button">ROTATE</button>
             <button id="pass-button" disabled={(!selectedy)}>PASS</button>
             <button id="take-button" disabled={(!selectedy)}>TAKE</button>
-            <button id="switch-button" onClick={() => {setIsBroadcaster(true) || setIsWatcher(false)}}>SWITCH</button>
-
+            
         </div>
     );
 };
 
-export default Watcher;
+export default Controller;
