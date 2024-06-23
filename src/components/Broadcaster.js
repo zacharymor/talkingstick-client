@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import io from 'socket.io-client';
 
-const Broadcaster = () => {
+const Broadcaster = ({setIsWatcher, setIsBroadcaster}) => {
     useEffect(() => {
         const peerConnections = {};
         const config = {
@@ -17,9 +17,41 @@ const Broadcaster = () => {
 
         const socket = io.connect('http://localhost:3000');
 
+        const disconnect = () => {
+            console.log("Disconnecting...");
+
+            // Stop all media tracks
+            if (window.stream) {
+                window.stream.getTracks().forEach(track => {
+                    track.stop();
+                });
+            }
+
+            // Close all peer connections
+            if (peerConnections) {
+                Object.values(peerConnections).forEach(peerConnection => {
+                    peerConnection.close();
+                });
+            }
+
+
+            // Notify server to update status
+            socket.emit("disconnectPeer", socket.id);
+
+            // Close the socket connection
+            socket.close();
+
+            // Update state to switch to watcher
+            setIsWatcher(true);
+            setIsBroadcaster(false);
+        };
+
         socket.on("answer", (id, description) => {
-            socket.emit('peered');
             peerConnections[id].setRemoteDescription(description);
+        });
+
+        socket.on("broadcaster", () => {
+            disconnect();
         });
 
         socket.on("watcher", id => {
@@ -47,8 +79,10 @@ const Broadcaster = () => {
         });
 
         socket.on("disconnectPeer", id => {
-            peerConnections[id].close();
-            delete peerConnections[id];
+            if (peerConnections.length > 0) {
+                peerConnections[id].close();
+                delete peerConnections[id];
+            }
         });
 
         window.onunload = window.onbeforeunload = () => {
@@ -58,6 +92,9 @@ const Broadcaster = () => {
         const videoElement = document.querySelector("video");
         const audioSelect = document.querySelector("select#audioSource");
         const videoSelect = document.querySelector("select#videoSource");
+        const switchButton = document.querySelector("#switch-button");
+
+        switchButton.addEventListener("click", disconnect);
 
         audioSelect.onchange = getStream;
         videoSelect.onchange = getStream;
@@ -119,6 +156,8 @@ const Broadcaster = () => {
             console.error("Error: ", error);
         }
 
+
+
         return () => {
             if (socket) {
                 socket.disconnect();
@@ -136,7 +175,7 @@ const Broadcaster = () => {
             <div>
                 <label htmlFor="videoSource">Video source: </label><select id="videoSource"></select>
             </div>
-
+            <button id="switch-button">SWITCH</button>
         </div>
     );
 };
